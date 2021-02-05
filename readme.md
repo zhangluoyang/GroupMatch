@@ -1,6 +1,6 @@
 #### 相似图片搜索 
 再近1万类别的识别结果如下  (数据量比较稀缺，多数类目就一张图片)
-![Image](./image/train.png)
+![Image](https://github.com/zhangluoyang/GroupMatch/tree/master/image/train.png)
 #### 损失函数
 ##### triple-loss label-smooth center-loss 等等
 ##### 说明: (无法提供数据集；数据集是属于公司的，仅仅将训练代码以及测试效果给出)
