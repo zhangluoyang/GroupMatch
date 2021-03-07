@@ -1,5 +1,5 @@
 #### 相似图片搜索 
-再近6万类别的识别结果如下  (数据量比较稀缺，多数类目就一张图片)
+再近6万类别的识别结果如下
 ![image](./image/train.png)
 #### 损失函数
 ##### triple-loss label-smooth center-loss 等等
