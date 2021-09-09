@@ -43,7 +43,7 @@ def run(train_data_dir: str, test_data_dir: str):
                                   zone_index_path=test_zone_index_path, transform=transform)
 
     # 类别分类样本数目
-    class_num = 4
+    class_num = 22
     # 特征提取层的特征维度
     in_features = 2048
     batch_size = 20
