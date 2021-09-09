@@ -11,6 +11,12 @@ nohup python group_match_main.py > train.log 2>&1 &
 ##### 实际使用过程当中发现数据标签存在很多问题 会导致训练有一些问题
 ##### 下面是相似的示例 (按照欧式距离排序)
 ###### 搜索目标
+![Image](./image/target_3.jpg)
+##### 相似 top16
+![Image](./image/sim_3.jpg)
+##### 非相似 16
+![Image](./image/no_sim_3.jpg)
+
 ![Image](./image/target_01.jpg)
 ##### 相似 top16
 ![Image](./image/sim_1.jpg)
