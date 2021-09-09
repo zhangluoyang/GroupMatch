@@ -29,11 +29,11 @@ class Bottleneck(nn.Module):
     def __init__(self, in_places: int,
                  places: int,
                  stride: int = 1,
-                 down_sampling: bool = False,
+                 is_down_sampling: bool = False,
                  expansion: int = 4):
         super(Bottleneck, self).__init__()
         self.expansion = expansion
-        self.down_sampling = down_sampling
+        self.is_down_sampling = is_down_sampling
 
         self.bottleneck = nn.Sequential(
             nn.Conv2d(in_channels=in_places, out_channels=places, kernel_size=1, stride=1, bias=False),
@@ -46,8 +46,8 @@ class Bottleneck(nn.Module):
             nn.BatchNorm2d(places * self.expansion),
         )
 
-        if self.downsampling:
-            self.down_sampling = nn.Sequential(
+        if self.is_down_sampling:
+            self.downsample = nn.Sequential(
                 nn.Conv2d(in_channels=in_places, out_channels=places * self.expansion, kernel_size=1, stride=stride,
                           bias=False),
                 nn.BatchNorm2d(places * self.expansion))
@@ -56,7 +56,7 @@ class Bottleneck(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         residual = x
         out = self.bottleneck(x)
-        if self.downsampling:
+        if self.is_down_sampling:
             residual = self.downsample(x)
         out += residual
         out = self.relu(out)
@@ -87,7 +87,7 @@ class ResNet(nn.Module):
                    places: int,
                    block: int,
                    stride: int) -> nn.Module:
-        layer_s = [Bottleneck(in_places, places, stride, down_sampling=True)]
+        layer_s = [Bottleneck(in_places, places, stride, is_down_sampling=True)]
         for i in range(1, block):
             layer_s.append(Bottleneck(places * self.expansion, places))
         return nn.Sequential(*layer_s)
@@ -99,9 +99,8 @@ class ResNet(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
 
-        x = self.avgpool(x)
+        x = self.avg_pool(x)
         x = x.view(x.size(0), -1)
-        x = self.fc(x)
         return x
 
 

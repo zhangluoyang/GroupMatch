@@ -171,10 +171,7 @@ class BatchHardTripletLoss(BasicLoss):
         target_feature = tensor_dict[self.target_feature_tensor_name]
         positive_feature = tensor_dict[self.positive_feature_tensor_name]
         # 正样本与目标样本相似的权重
-        positive_weight = tensor_dict[self.positive_weight_tensor_name]
         negative_feature = tensor_dict[self.negative_feature_tensor_name]
-        # 负样本与目标样本不相似的权重 等价于 (1-相似度)
-        negative_weight = tensor_dict[self.negative_weight_tensor_name]
         # [batch_num, 1, feature_dim]
         target_feature = target_feature.unsqueeze(1)
         # 计算距离正样本的距离
@@ -182,13 +179,13 @@ class BatchHardTripletLoss(BasicLoss):
         positive_distance = torch.pow((target_feature - positive_feature), exponent=2)
         # [batch_num, positive_num]
         positive_distance = torch.sum(positive_distance, dim=-1)
-        positive_distance = positive_weight * positive_distance
+        positive_distance = torch.sqrt(positive_distance)
         # 计算距离负样本的距离
         # [batch_num, negative_num, feature_dim]
         negative_distance = torch.pow((target_feature - negative_feature), exponent=2)
         # [batch_num, negative_sum]
         negative_distance = torch.sum(negative_distance, dim=-1)
-        negative_distance = negative_weight * negative_distance
+        negative_distance = torch.sqrt(negative_distance)
         # 保证正负样本有一定的间隔
         # [batch_num, num]
         loss = F.relu(positive_distance - negative_distance + self.margin)

@@ -124,6 +124,7 @@ class TripleNormalizationIDClassificationFeature(BasicClassification):
         self.class_num = class_num
         self.fc_layer = nn.Linear(in_features=in_features, out_features=self.class_num, bias=bias)
         self.bn = nn.BatchNorm1d(in_features)
+        self.bn.bias.requires_grad_(False)
 
     def forward(self, tensor_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         #  负样本特征

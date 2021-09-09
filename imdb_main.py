@@ -103,6 +103,10 @@ def generate_imdb(path: str,
             continue
         label = data["groupPictureLabelData"]["label"]
         zoneId = data["groupPictureLabelData"]["zoneId"]
+
+        if zoneId not in (48, 49, 52, 54):
+            continue
+
         count = label_count[label]
         if label not in train_label_count:
             train_label_count[label] = 0

@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader
 from model.keras.torch_keras import Model
 from data.LmdbDataSet import TripleDataSet
 from model.model import TripleNormalizationIDClassificationFeature
-from model.feature.efficient_net import efficient_net_b4
+from model.feature.resnet import res_net_50
 from loss.loss_layer import CrossEntropyLoss, BatchHardTripletLoss, BasicLoss, LabelSmoothingCrossEntropy
 
 
@@ -25,9 +25,11 @@ def run(train_data_dir: str, test_data_dir: str):
     :return:
     """
     # 数据集
-    transform = T.Compose([T.Resize((224, 224), interpolation=Image.BICUBIC),
-                           T.RandomHorizontalFlip(),
-                           T.ToTensor()])
+    transform = T.Compose([T.RandomHorizontalFlip(),
+                           T.RandomCrop((800, 800)),
+                           T.Resize((224, 224), interpolation=Image.BICUBIC),
+                           T.ToTensor(),
+                           T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     train_db_path = "{0}/data.db".format(train_data_dir)
     train_keys_path = "{0}/keys.npy".format(train_data_dir)
     train_zone_index_path = "{0}/zone_index.json".format(train_data_dir)
@@ -40,16 +42,16 @@ def run(train_data_dir: str, test_data_dir: str):
     test_data_set = TripleDataSet(db_path=test_db_path, keys_path=test_keys_path,
                                   zone_index_path=test_zone_index_path, transform=transform)
 
-    # 类别分类样本数目 (一万类别哈....具体根据数据来定夺)
-    class_num = 10000
+    # 类别分类样本数目
+    class_num = 4
     # 特征提取层的特征维度
-    in_features = 1792
-    batch_size = 8
-    num_workers = 4
+    in_features = 2048
+    batch_size = 20
+    num_workers = 0
     epochs: int = 200
     check_path: str = "./check_point"
     log_step_freq: int = 1
-    device: str = "cuda:1"
+    device: str = "cuda:0"
     # dataSet 输出的tensor 名称
     tensor_names: List[str] = ["target_image",
                                "positive_image",
@@ -70,14 +72,15 @@ def run(train_data_dir: str, test_data_dir: str):
     # 评估函数
     metrics_funcs: List[BasicMetrics] = [Accuracy(tensor_names=["out", "target"])]
     # 特征提取器
-    feature_net = efficient_net_b4()
+    feature_net = res_net_50()
     # 模型
     triple_net = TripleNormalizationIDClassificationFeature(feature_module=feature_net,
                                                             in_features=in_features,
                                                             class_num=class_num,
                                                             bias=False)
+
     # 优化器
-    opt_args = {"lr": 0.01, "weight_decay": 0.0001, "momentum": 0.9}
+    opt_args = {"lr": 0.001, "weight_decay": 0.0001, "momentum": 0.9}
     model = Model(net=triple_net)
     optimizer = torch.optim.SGD(model.parameters(), nesterov=True, **opt_args)
 
@@ -96,6 +99,6 @@ def run(train_data_dir: str, test_data_dir: str):
 
 
 if __name__ == "__main__":
-    train_dir = r"/ai/zhangluoyang/group_image/train"
-    test_dir = r"/ai/zhangluoyang/group_image/test"
+    train_dir = r"G:/group_image/train"
+    test_dir = r"G:/group_image/test"
     run(train_data_dir=train_dir, test_data_dir=test_dir)

@@ -159,8 +159,10 @@ class TripleDataSet(LmdaDataSet):
             # target 数据
             target_data = self.get_value_by_key(key=key)
             target_image = base64_to_image(base64_code=target_data["groupPictureLabelData"]["targetBase64Image"])
-            target = target_data["groupPictureLabelData"]["label"]
 
+            label_dict = {48: 0, 49: 1, 52: 2, 54: 3}
+            target = target_data["groupPictureLabelData"]["zoneId"]
+            target = label_dict[target]
             # 正样本及其权重
             positive_image, positive_weight = self.positive_sample(data=target_data)
             # 负样本及其权重
